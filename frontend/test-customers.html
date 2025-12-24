@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Customers API</title>
+</head>
+<body>
+    <h1>Testing Customers API</h1>
+    <button onclick="testAPI()">Test Load Customers</button>
+    <div id="result"></div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Loading...';
+
+            try {
+                // First login
+                const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'admin@bank.com', password: 'Admin@123' })
+                });
+
+                if (!loginResponse.ok) {
+                    resultDiv.innerHTML = `<p style="color:red">Login failed: ${loginResponse.status}</p>`;
+                    return;
+                }
+
+                const loginData = await loginResponse.json();
+                resultDiv.innerHTML = `<p style="color:green">✓ Login successful. Token: ${loginData.token.substring(0, 20)}...</p>`;
+
+                // Now fetch customers
+                const customersResponse = await fetch(`${API_BASE_URL}/customers`, {
+                    headers: {
+                        'Authorization': `Bearer ${loginData.token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!customersResponse.ok) {
+                    resultDiv.innerHTML += `<p style="color:red">✗ Customers fetch failed: ${customersResponse.status}</p>`;
+                    const errorText = await customersResponse.text();
+                    resultDiv.innerHTML += `<p>Error: ${errorText}</p>`;
+                    return;
+                }
+
+                const customers = await customersResponse.json();
+                resultDiv.innerHTML += `<p style="color:green">✓ Customers loaded: ${customers.length} found</p>`;
+                resultDiv.innerHTML += '<ul>';
+                customers.forEach(c => {
+                    resultDiv.innerHTML += `<li>ID: ${c.id}, Name: ${c.firstName} ${c.lastName}, CustomerID: ${c.customerId}</li>`;
+                });
+                resultDiv.innerHTML += '</ul>';
+
+                // Test select population
+                const select = document.createElement('select');
+                select.innerHTML = '<option value="">Select Customer</option>' + 
+                    customers.map(c => `<option value="${c.id}">${c.firstName} ${c.lastName} (${c.customerId})</option>`).join('');
+                resultDiv.innerHTML += '<h3>Select Element Test:</h3>';
+                resultDiv.appendChild(select);
+
+            } catch (error) {
+                resultDiv.innerHTML += `<p style="color:red">✗ Error: ${error.message}</p>`;
+                console.error('Detailed error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

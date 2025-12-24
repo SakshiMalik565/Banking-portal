@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Statement - Banking Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .slide-in { animation: slideIn 0.4s ease-out; }
+        @media print {
+            .no-print { display: none; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <nav class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 shadow-lg slide-in no-print">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold cursor-pointer flex items-center hover:scale-105 transition" onclick="location.href='dashboard.html'">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Banking Portal
+            </h1>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition transform hover:scale-105">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4 max-w-6xl">
+        <div class="flex justify-between items-center mb-6 fade-in no-print">
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center">
+                <svg class="w-8 h-8 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Account Statement
+            </h2>
+            <button onclick="window.print()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition transform hover:scale-105 shadow-lg flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                Print Statement
+            </button>
+        </div>
+
+        <!-- Account Selection -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6 fade-in no-print">
+            <h3 class="text-xl font-bold mb-4">Select Account & Period</h3>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Account</label>
+                    <select id="accountSelect" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition">
+                        <option value="">Select account...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">From Date</label>
+                    <input type="date" id="fromDate" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">To Date</label>
+                    <input type="date" id="toDate" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition">
+                </div>
+            </div>
+            <div class="flex justify-end mt-4">
+                <button onclick="generateStatement()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition transform hover:scale-105 shadow-lg">
+                    Generate Statement
+                </button>
+            </div>
+        </div>
+
+        <!-- Statement Content -->
+        <div id="statementContent" class="hidden">
+            <!-- Header -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-6 fade-in">
+                <div class="text-center mb-6">
+                    <h1 class="text-3xl font-bold text-blue-600 mb-2">Banking Portal</h1>
+                    <p class="text-gray-600">Account Statement</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-3">Account Details</h3>
+                        <div class="space-y-2 text-sm">
+                            <p><span class="font-semibold">Account Number:</span> <span id="stmtAccountNumber"></span></p>
+                            <p><span class="font-semibold">Account Type:</span> <span id="stmtAccountType"></span></p>
+                            <p><span class="font-semibold">Customer Name:</span> <span id="stmtCustomerName"></span></p>
+                            <p><span class="font-semibold">Status:</span> <span id="stmtStatus"></span></p>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-3">Statement Period</h3>
+                        <div class="space-y-2 text-sm">
+                            <p><span class="font-semibold">From:</span> <span id="stmtFromDate"></span></p>
+                            <p><span class="font-semibold">To:</span> <span id="stmtToDate"></span></p>
+                            <p><span class="font-semibold">Generated On:</span> <span id="stmtGeneratedDate"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-xl shadow-lg">
+                    <p class="text-sm text-gray-600">Opening Balance</p>
+                    <p class="text-2xl font-bold text-blue-600" id="openingBalance">₹0</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-lg">
+                    <p class="text-sm text-gray-600">Total Credits</p>
+                    <p class="text-2xl font-bold text-green-600" id="totalCredits">₹0</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-lg">
+                    <p class="text-sm text-gray-600">Total Debits</p>
+                    <p class="text-2xl font-bold text-red-600" id="totalDebits">₹0</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-lg">
+                    <p class="text-sm text-gray-600">Closing Balance</p>
+                    <p class="text-2xl font-bold text-purple-600" id="closingBalance">₹0</p>
+                </div>
+            </div>
+
+            <!-- Transactions -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden fade-in">
+                <h3 class="text-xl font-bold p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">Transaction Details</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-3 px-4 text-left font-semibold text-gray-700">Date</th>
+                                <th class="py-3 px-4 text-left font-semibold text-gray-700">Description</th>
+                                <th class="py-3 px-4 text-left font-semibold text-gray-700">Type</th>
+                                <th class="py-3 px-4 text-right font-semibold text-gray-700">Debit</th>
+                                <th class="py-3 px-4 text-right font-semibold text-gray-700">Credit</th>
+                                <th class="py-3 px-4 text-right font-semibold text-gray-700">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable">
+                            <tr>
+                                <td colspan="6" class="text-center py-4">No transactions found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-8 text-sm text-gray-600">
+                <p>This is a system generated statement and does not require a signature.</p>
+                <p class="mt-2">For any queries, please contact your nearest branch.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        checkAuth();
+
+        let allAccounts = [];
+        let allTransactions = [];
+
+        async function loadAccounts() {
+            try {
+                console.log('Loading accounts for statement...');
+                const response = await fetch(`${API_BASE_URL}/accounts`, {
+                    headers: getAuthHeaders()
+                });
+                allAccounts = await response.json();
+                console.log('Loaded accounts:', allAccounts.length);
+                
+                const select = document.getElementById('accountSelect');
+                select.innerHTML = '<option value="">Select account...</option>' +
+                    allAccounts.map(acc => {
+                        const customerName = acc.customer 
+                            ? `${acc.customer.firstName} ${acc.customer.lastName}` 
+                            : 'N/A';
+                        return `<option value="${acc.id}">${acc.accountNumber} - ${customerName} (₹${formatAmount(acc.balance)})</option>`;
+                    }).join('');
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+            }
+        }
+
+        async function generateStatement() {
+            const accountId = document.getElementById('accountSelect').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+
+            if (!accountId) {
+                alert('Please select an account');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/transactions/account/${accountId}`, {
+                    headers: getAuthHeaders()
+                });
+                allTransactions = await response.json();
+
+                // Filter by date if specified
+                let filteredTransactions = allTransactions;
+                if (fromDate) {
+                    filteredTransactions = filteredTransactions.filter(t => t.timestamp >= fromDate);
+                }
+                if (toDate) {
+                    const toDateTime = new Date(toDate);
+                    toDateTime.setHours(23, 59, 59);
+                    filteredTransactions = filteredTransactions.filter(t => new Date(t.timestamp) <= toDateTime);
+                }
+
+                // Sort by date
+                filteredTransactions.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+                const account = allAccounts.find(a => a.id == accountId);
+                displayStatement(account, filteredTransactions, fromDate, toDate);
+            } catch (error) {
+                console.error('Error generating statement:', error);
+                alert('Error generating statement');
+            }
+        }
+
+        function displayStatement(account, transactions, fromDate, toDate) {
+            // Account Details
+            document.getElementById('stmtAccountNumber').textContent = account.accountNumber;
+            document.getElementById('stmtAccountType').textContent = account.accountType;
+            const customerName = account.customer 
+                ? `${account.customer.firstName} ${account.customer.lastName}` 
+                : 'N/A';
+            document.getElementById('stmtCustomerName').textContent = customerName;
+            document.getElementById('stmtStatus').textContent = account.status;
+
+            // Statement Period
+            document.getElementById('stmtFromDate').textContent = fromDate || 'Beginning';
+            document.getElementById('stmtToDate').textContent = toDate || 'Present';
+            document.getElementById('stmtGeneratedDate').textContent = new Date().toLocaleDateString();
+
+            // Calculate summary
+            const credits = transactions.filter(t => t.transactionType === 'DEPOSIT')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const debits = transactions.filter(t => t.transactionType === 'WITHDRAWAL' || t.transactionType === 'TRANSFER')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+            const openingBalance = transactions.length > 0 
+                ? parseFloat(transactions[0].balanceAfter) - (transactions[0].transactionType === 'DEPOSIT' ? parseFloat(transactions[0].amount) : -parseFloat(transactions[0].amount))
+                : parseFloat(account.balance);
+            const closingBalance = parseFloat(account.balance);
+
+            document.getElementById('openingBalance').textContent = '₹' + formatAmount(openingBalance);
+            document.getElementById('totalCredits').textContent = '₹' + formatAmount(credits);
+            document.getElementById('totalDebits').textContent = '₹' + formatAmount(debits);
+            document.getElementById('closingBalance').textContent = '₹' + formatAmount(closingBalance);
+
+            // Display transactions
+            const tbody = document.getElementById('transactionsTable');
+            if (transactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">No transactions found for the selected period</td></tr>';
+            } else {
+                tbody.innerHTML = transactions.map(txn => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-3 px-4">${formatDate(txn.timestamp)}</td>
+                        <td class="py-3 px-4">${txn.description || txn.transactionType}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-1 rounded text-xs font-semibold ${getTypeColor(txn.transactionType)}">
+                                ${txn.transactionType}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right ${txn.transactionType !== 'DEPOSIT' ? 'text-red-600 font-semibold' : ''}">
+                            ${txn.transactionType !== 'DEPOSIT' ? '₹' + formatAmount(txn.amount) : '-'}
+                        </td>
+                        <td class="py-3 px-4 text-right ${txn.transactionType === 'DEPOSIT' ? 'text-green-600 font-semibold' : ''}">
+                            ${txn.transactionType === 'DEPOSIT' ? '₹' + formatAmount(txn.amount) : '-'}
+                        </td>
+                        <td class="py-3 px-4 text-right font-semibold">₹${formatAmount(txn.balanceAfter)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            document.getElementById('statementContent').classList.remove('hidden');
+        }
+
+        function getTypeColor(type) {
+            const colors = {
+                'DEPOSIT': 'bg-green-100 text-green-800',
+                'WITHDRAWAL': 'bg-red-100 text-red-800',
+                'TRANSFER': 'bg-blue-100 text-blue-800'
+            };
+            return colors[type] || 'bg-gray-100 text-gray-800';
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp).toLocaleDateString('en-IN', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function formatAmount(amount) {
+            return parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Set default dates (last 30 days)
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        document.getElementById('toDate').valueAsDate = today;
+        document.getElementById('fromDate').valueAsDate = thirtyDaysAgo;
+
+        loadAccounts();
+    </script>
+</body>
+</html>

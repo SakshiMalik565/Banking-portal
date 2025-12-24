@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts - Banking Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .slide-in { animation: slideIn 0.4s ease-out; }
+        tr { transition: all 0.3s ease; }
+        tr:hover { background-color: #f3f4f6; transform: scale(1.01); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen">
+    <nav class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-4 shadow-lg slide-in">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold cursor-pointer flex items-center hover:scale-105 transition" onclick="location.href='dashboard.html'">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Banking Portal
+            </h1>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition transform hover:scale-105">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4">
+        <div class="flex justify-between items-center mb-6 fade-in">
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent flex items-center">
+                <svg class="w-8 h-8 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                </svg>
+                Account Management
+            </h2>
+            <button onclick="showCreateModal()" class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3 px-6 rounded-xl transition transform hover:scale-105 shadow-lg flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Create Account
+            </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden fade-in">
+            <table class="min-w-full">
+                <thead class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white">
+                    <tr>
+                        <th class="py-4 px-6 text-left font-semibold">Account Number</th>
+                        <th class="py-4 px-6 text-left font-semibold">Customer</th>
+                        <th class="py-4 px-6 text-left font-semibold">Type</th>
+                        <th class="py-4 px-6 text-left font-semibold">Balance</th>
+                        <th class="py-4 px-6 text-left font-semibold">Status</th>
+                        <th class="py-4 px-6 text-left font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="accountTable">
+                    <tr>
+                        <td colspan="6" class="text-center py-4">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Create Account Modal -->
+    <div id="createModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg w-96">
+            <h3 class="text-2xl font-bold mb-4">Create Account</h3>
+            <form id="createAccountForm">
+                <select id="customerId" class="w-full mb-2 p-2 border rounded" required>
+                    <option value="">Select Customer</option>
+                </select>
+                <select id="accountType" class="w-full mb-2 p-2 border rounded" required>
+                    <option value="SAVINGS">Savings</option>
+                    <option value="CURRENT">Current</option>
+                </select>
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button type="button" onclick="closeCreateModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg w-96">
+            <h3 class="text-2xl font-bold mb-4" id="transactionTitle">Transaction</h3>
+            <form id="transactionForm">
+                <input type="hidden" id="transactionAccountNumber">
+                <input type="number" id="amount" placeholder="Amount" class="w-full mb-2 p-2 border rounded" required min="1" step="0.01">
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button type="button" onclick="closeTransactionModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        let currentTransactionType = '';
+
+        async function loadAccounts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/accounts`, {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const accounts = await response.json();
+                    const tbody = document.getElementById('accountTable');
+                    tbody.innerHTML = accounts.map(acc => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">${acc.accountNumber}</td>
+                            <td class="py-3 px-4">${acc.customer ? acc.customer.firstName + ' ' + acc.customer.lastName : 'N/A'}</td>
+                            <td class="py-3 px-4"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">${acc.accountType}</span></td>
+                            <td class="py-3 px-4 font-bold">₹${parseFloat(acc.balance).toLocaleString()}</td>
+                            <td class="py-3 px-4"><span class="bg-${acc.status === 'ACTIVE' ? 'green' : 'orange'}-100 text-${acc.status === 'ACTIVE' ? 'green' : 'orange'}-800 px-2 py-1 rounded text-sm">${acc.status}</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="showTransaction('${acc.accountNumber}', 'deposit')" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-sm mr-1">Deposit</button>
+                                <button onclick="showTransaction('${acc.accountNumber}', 'withdraw')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm mr-1">Withdraw</button>
+                                <button onclick="deleteAccount('${acc.accountNumber}', '${acc.customer ? acc.customer.firstName + ' ' + acc.customer.lastName : 'N/A'}')" class="bg-gray-700 hover:bg-gray-800 text-white px-2 py-1 rounded text-sm">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+            }
+        }
+
+        async function loadCustomers() {
+            try {
+                console.log('Loading customers from:', `${API_BASE_URL}/customers`);
+                const response = await fetch(`${API_BASE_URL}/customers`, {
+                    headers: getAuthHeaders()
+                });
+
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const customers = await response.json();
+                    console.log('Customers loaded:', customers.length);
+                    const select = document.getElementById('customerId');
+                    if (!select) {
+                        console.error('customerId select element not found!');
+                        return;
+                    }
+                    select.innerHTML = '<option value="">Select Customer</option>' + 
+                        customers.map(c => `<option value="${c.id}">${c.firstName} ${c.lastName} (${c.customerId})</option>`).join('');
+                    console.log('Select populated with', select.options.length - 1, 'customers');
+                } else {
+                    const errorText = await response.text();
+                    console.error('Failed to load customers:', response.status, errorText);
+                    alert('Failed to load customers. Please check console for details.');
+                }
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                alert('Error loading customers: ' + error.message);
+            }
+        }
+
+        document.getElementById('createAccountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const customerId = document.getElementById('customerId').value;
+            const accountType = document.getElementById('accountType').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/accounts?customerId=${customerId}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ accountType })
+                });
+
+                if (response.ok) {
+                    alert('Account created successfully');
+                    closeCreateModal();
+                    loadAccounts();
+                }
+            } catch (error) {
+                alert('Error creating account');
+            }
+        });
+
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const accountNumber = document.getElementById('transactionAccountNumber').value;
+            const amount = document.getElementById('amount').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/accounts/${currentTransactionType}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ accountNumber, amount })
+                });
+
+                if (response.ok) {
+                    alert(`${currentTransactionType} successful`);
+                    closeTransactionModal();
+                    loadAccounts();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Transaction failed');
+                }
+            } catch (error) {
+                alert('Error processing transaction');
+            }
+        });
+
+        function showCreateModal() {
+            loadCustomers();
+            document.getElementById('createModal').classList.remove('hidden');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+        }
+
+        function showTransaction(accountNumber, type) {
+            currentTransactionType = type;
+            document.getElementById('transactionTitle').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            document.getElementById('transactionAccountNumber').value = accountNumber;
+            document.getElementById('transactionModal').classList.remove('hidden');
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').classList.add('hidden');
+            document.getElementById('transactionForm').reset();
+        }
+
+        async function deleteAccount(accountNumber, customerName) {
+            if (!confirm(`Are you sure you want to delete account ${accountNumber} for customer ${customerName}?\n\nNote: Account must have zero balance to be deleted.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/accounts/${accountNumber}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    alert('Account deleted successfully');
+                    loadAccounts();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error deleting account');
+                }
+            } catch (error) {
+                alert('Error deleting account: ' + error.message);
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        checkAuth();
+        loadAccounts();
+    </script>
+</body>
+</html>

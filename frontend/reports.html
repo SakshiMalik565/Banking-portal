@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Banking Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .slide-in { animation: slideIn 0.4s ease-out; }
+        .print-hidden { display: none; }
+        @media print {
+            .no-print { display: none; }
+            .print-hidden { display: block; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-purple-50 min-h-screen">
+    <nav class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 shadow-lg slide-in no-print">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold cursor-pointer flex items-center hover:scale-105 transition" onclick="location.href='dashboard.html'">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Banking Portal
+            </h1>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition transform hover:scale-105">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4">
+        <div class="flex justify-between items-center mb-6 fade-in">
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent flex items-center">
+                <svg class="w-8 h-8 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Analytics & Reports
+            </h2>
+            <button onclick="window.print()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition transform hover:scale-105 shadow-lg flex items-center no-print">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                Print Report
+            </button>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 fade-in">
+            <div class="bg-white p-4 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-xs font-semibold">Total Balance</p>
+                        <p class="text-2xl font-bold text-green-600" id="totalBalance">₹0</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-xs font-semibold">Active Accounts</p>
+                        <p class="text-2xl font-bold text-blue-600" id="activeAccounts">0</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-xs font-semibold">Today's Transactions</p>
+                        <p class="text-2xl font-bold text-orange-600" id="todayTransactions">0</p>
+                    </div>
+                    <div class="bg-orange-100 p-3 rounded-full">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-xs font-semibold">Total Customers</p>
+                        <p class="text-2xl font-bold text-purple-600" id="totalCustomers">0</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid md:grid-cols-2 gap-4 mb-6">
+            <!-- Transaction Trends -->
+            <div class="bg-white p-4 rounded-2xl shadow-xl fade-in">
+                <h3 class="text-lg font-bold mb-3 text-gray-800">Transaction Trends (Last 7 Days)</h3>
+                <div style="height: 200px;">
+                    <canvas id="transactionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Account Type Distribution -->
+            <div class="bg-white p-4 rounded-2xl shadow-xl fade-in">
+                <h3 class="text-lg font-bold mb-3 text-gray-800">Account Type Distribution</h3>
+                <div style="height: 200px;">
+                    <canvas id="accountTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-2xl shadow-xl p-4 fade-in">
+            <h3 class="text-lg font-bold mb-3 text-gray-800">Recent High-Value Transactions</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                        <tr>
+                            <th class="py-2 px-3 text-left font-semibold text-sm">Date</th>
+                            <th class="py-2 px-3 text-left font-semibold text-sm">Account</th>
+                            <th class="py-2 px-3 text-left font-semibold text-sm">Type</th>
+                            <th class="py-2 px-3 text-left font-semibold text-sm">Amount</th>
+                            <th class="py-2 px-3 text-left font-semibold text-sm">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTransactions">
+                        <tr>
+                            <td colspan="5" class="text-center py-4">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        checkAuth();
+
+        let transactionChart, accountTypeChart;
+
+        async function loadReportsData() {
+            try {
+                console.log('Loading reports data...');
+                // Load all data
+                const [accounts, transactions, customers] = await Promise.all([
+                    fetch(`${API_BASE_URL}/accounts`, { headers: getAuthHeaders() }).then(r => r.json()),
+                    fetch(`${API_BASE_URL}/transactions`, { headers: getAuthHeaders() }).then(r => r.json()),
+                    fetch(`${API_BASE_URL}/customers`, { headers: getAuthHeaders() }).then(r => r.json())
+                ]);
+
+                console.log('Loaded data:', { accounts: accounts.length, transactions: transactions.length, customers: customers.length });
+                console.log('Sample transaction:', transactions[0]);
+
+                updateStatistics(accounts, transactions, customers);
+                createTransactionChart(transactions);
+                createAccountTypeChart(accounts);
+                displayRecentTransactions(transactions);
+            } catch (error) {
+                console.error('Error loading reports:', error);
+                alert('Error loading reports data. Please check console for details.');
+            }
+        }
+
+        function updateStatistics(accounts, transactions, customers) {
+            // Total Balance
+            const totalBalance = accounts.reduce((sum, acc) => sum + parseFloat(acc.balance), 0);
+            document.getElementById('totalBalance').textContent = '₹' + formatAmount(totalBalance);
+
+            // Active Accounts
+            const activeAccounts = accounts.filter(acc => acc.status === 'ACTIVE').length;
+            document.getElementById('activeAccounts').textContent = activeAccounts;
+
+            // Today's Transactions
+            const today = new Date().toDateString();
+            const todayTxns = transactions.filter(txn => new Date(txn.timestamp).toDateString() === today);
+            document.getElementById('todayTransactions').textContent = todayTxns.length;
+
+            // Total Customers
+            document.getElementById('totalCustomers').textContent = customers.length;
+        }
+
+        function createTransactionChart(transactions) {
+            const last7Days = Array.from({length: 7}, (_, i) => {
+                const date = new Date();
+                date.setDate(date.getDate() - (6 - i));
+                return date.toISOString().split('T')[0];
+            });
+
+            const deposits = last7Days.map(date => 
+                transactions.filter(t => t.transactionType === 'DEPOSIT' && t.timestamp.startsWith(date))
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0)
+            );
+
+            const withdrawals = last7Days.map(date => 
+                transactions.filter(t => (t.transactionType === 'WITHDRAWAL' || t.transactionType === 'TRANSFER') && t.timestamp.startsWith(date))
+                    .reduce((sum, t) => sum + parseFloat(t.amount), 0)
+            );
+
+            const ctx = document.getElementById('transactionChart').getContext('2d');
+            transactionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: last7Days.map(date => new Date(date).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})),
+                    datasets: [{
+                        label: 'Deposits',
+                        data: deposits,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'Withdrawals',
+                        data: withdrawals,
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function createAccountTypeChart(accounts) {
+            const types = {};
+            accounts.forEach(acc => {
+                types[acc.accountType] = (types[acc.accountType] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('accountTypeChart').getContext('2d');
+            accountTypeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(types),
+                    datasets: [{
+                        data: Object.values(types),
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(234, 179, 8, 0.8)',
+                            'rgba(239, 68, 68, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function displayRecentTransactions(transactions) {
+            const highValue = transactions
+                .filter(t => parseFloat(t.amount) >= 10000)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 10);
+
+            const tbody = document.getElementById('recentTransactions');
+            if (highValue.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No high-value transactions found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = highValue.map(txn => `
+                <tr class="hover:bg-gray-50">
+                    <td class="py-2 px-3 text-sm">${formatDateTime(txn.timestamp)}</td>
+                    <td class="py-2 px-3 font-mono text-xs">${txn.account ? txn.account.accountNumber : 'N/A'}</td>
+                    <td class="py-2 px-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${getTypeColor(txn.transactionType)}">
+                            ${txn.transactionType}
+                        </span>
+                    </td>
+                    <td class="py-2 px-3 text-sm font-bold ${txn.transactionType === 'DEPOSIT' ? 'text-green-600' : 'text-red-600'}">
+                        ₹${formatAmount(Math.abs(txn.amount))}
+                    </td>
+                    <td class="py-2 px-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${txn.status === 'SUCCESS' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            ${txn.status || 'Completed'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getTypeColor(type) {
+            const colors = {
+                'DEPOSIT': 'bg-green-100 text-green-800',
+                'WITHDRAWAL': 'bg-red-100 text-red-800',
+                'TRANSFER': 'bg-blue-100 text-blue-800'
+            };
+            return colors[type] || 'bg-gray-100 text-gray-800';
+        }
+
+        function formatDateTime(timestamp) {
+            return new Date(timestamp).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function formatAmount(amount) {
+            return parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        loadReportsData();
+    </script>
+</body>
+</html>

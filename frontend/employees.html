@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employees - Banking Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .slide-in { animation: slideIn 0.4s ease-out; }
+        tr { transition: all 0.3s ease; }
+        tr:hover { background-color: #f3f4f6; transform: scale(1.01); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-indigo-50 min-h-screen">
+    <nav class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 shadow-lg slide-in">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold cursor-pointer flex items-center hover:scale-105 transition" onclick="location.href='dashboard.html'">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Banking Portal
+            </h1>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition transform hover:scale-105">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4">
+        <div class="flex justify-between items-center mb-6 fade-in">
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center">
+                <svg class="w-8 h-8 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                Employee Management
+            </h2>
+            <button id="addEmployeeBtn" onclick="showAddModal()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition transform hover:scale-105 shadow-lg hidden flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Employee
+            </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden fade-in">
+            <table class="min-w-full">
+                <thead class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                    <tr>
+                        <th class="py-4 px-6 text-left font-semibold">Employee ID</th>
+                        <th class="py-4 px-6 text-left font-semibold">Name</th>
+                        <th class="py-4 px-6 text-left font-semibold">Email</th>
+                        <th class="py-4 px-6 text-left font-semibold">Department</th>
+                        <th class="py-4 px-6 text-left font-semibold">Role</th>
+                        <th class="py-4 px-6 text-left font-semibold">Status</th>
+                        <th class="py-4 px-6 text-left font-semibold" id="actionsHeader" style="display:none;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTable">
+                    <tr>
+                        <td colspan="6" class="text-center py-4">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg w-96">
+            <h3 class="text-2xl font-bold mb-4">Add Employee</h3>
+            <form id="addEmployeeForm">
+                <input type="text" id="firstName" placeholder="First Name" class="w-full mb-2 p-2 border rounded" required>
+                <input type="text" id="lastName" placeholder="Last Name" class="w-full mb-2 p-2 border rounded" required>
+                <input type="email" id="email" placeholder="Email" class="w-full mb-2 p-2 border rounded" required>
+                <input type="password" id="password" placeholder="Password" class="w-full mb-2 p-2 border rounded" required>
+                <input type="text" id="phone" placeholder="Phone" class="w-full mb-2 p-2 border rounded" required>
+                <input type="text" id="department" placeholder="Department" class="w-full mb-2 p-2 border rounded" required>
+                <input type="text" id="designation" placeholder="Designation" class="w-full mb-2 p-2 border rounded" required>
+                <select id="role" class="w-full mb-2 p-2 border rounded" required>
+                    <option value="CLERK">Clerk</option>
+                    <option value="MANAGER">Manager</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+                <div class="flex justify-end space-x-2 mt-4">
+                    <button type="button" onclick="closeAddModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees`, {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const employees = await response.json();
+                    const tbody = document.getElementById('employeeTable');
+                    const user = getUser();
+                    const isAdmin = user.role === 'ADMIN';
+                    tbody.innerHTML = employees.map(emp => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">${emp.employeeId}</td>
+                            <td class="py-3 px-4">${emp.firstName} ${emp.lastName}</td>
+                            <td class="py-3 px-4">${emp.email}</td>
+                            <td class="py-3 px-4">${emp.department || 'N/A'}</td>
+                            <td class="py-3 px-4"><span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-sm">${emp.role}</span></td>
+                            <td class="py-3 px-4"><span class="bg-${emp.status === 'ACTIVE' ? 'green' : 'red'}-100 text-${emp.status === 'ACTIVE' ? 'green' : 'red'}-800 px-2 py-1 rounded text-sm">${emp.status}</span></td>
+                            <td class="py-3 px-4" style="display:${isAdmin ? 'table-cell' : 'none'};">
+                                <button onclick="deleteEmployee(${emp.id}, '${emp.firstName} ${emp.lastName}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+            }
+        }
+
+        document.getElementById('addEmployeeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const employee = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value,
+                department: document.getElementById('department').value,
+                designation: document.getElementById('designation').value,
+                role: document.getElementById('role').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(employee)
+                });
+
+                if (response.ok) {
+                    alert('Employee added successfully');
+                    closeAddModal();
+                    loadEmployees();
+                }
+            } catch (error) {
+                alert('Error adding employee');
+            }
+        });
+
+        function showAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            document.getElementById('addEmployeeForm').reset();
+        }
+
+        async function deleteEmployee(id, name) {
+            if (!confirm(`Are you sure you want to delete employee: ${name}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/employees/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    alert('Employee deleted successfully');
+                    loadEmployees();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error deleting employee');
+                }
+            } catch (error) {
+                alert('Error deleting employee');
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        checkAuth();
+        const user = getUser();
+        if (user.role === 'ADMIN') {
+            document.getElementById('addEmployeeBtn').classList.remove('hidden');
+            document.getElementById('actionsHeader').style.display = 'table-cell';
+        }
+        loadEmployees();
+    </script>
+</body>
+</html>

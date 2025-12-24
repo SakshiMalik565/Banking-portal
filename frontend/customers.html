@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - Banking Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .slide-in { animation: slideIn 0.4s ease-out; }
+        tr { transition: all 0.3s ease; }
+        tr:hover { background-color: #f3f4f6; transform: scale(1.01); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-green-50 min-h-screen">
+    <nav class="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 shadow-lg slide-in">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold cursor-pointer flex items-center hover:scale-105 transition" onclick="location.href='dashboard.html'">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Banking Portal
+            </h1>
+            <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg transition transform hover:scale-105">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4">
+        <div class="flex justify-between items-center mb-6 fade-in">
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent flex items-center">
+                <svg class="w-8 h-8 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                Customer Management
+            </h2>
+            <button onclick="showAddModal()" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-xl transition transform hover:scale-105 shadow-lg flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Customer
+            </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden fade-in">
+            <table class="min-w-full">
+                <thead class="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+                    <tr>
+                        <th class="py-4 px-6 text-left font-semibold">Customer ID</th>
+                        <th class="py-4 px-6 text-left font-semibold">Name</th>
+                        <th class="py-4 px-6 text-left font-semibold">Email</th>
+                        <th class="py-4 px-6 text-left font-semibold">Phone</th>
+                        <th class="py-4 px-6 text-left font-semibold">Status</th>
+                        <th class="py-4 px-6 text-left font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="customerTable">
+                    <tr>
+                        <td colspan="6" class="text-center py-4">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="addModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl w-96 max-h-screen overflow-y-auto shadow-2xl fade-in">
+            <h3 class="text-2xl font-bold mb-6 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Add Customer</h3>
+            <form id="addCustomerForm">
+                <input type="text" id="firstName" placeholder="First Name" class="w-full mb-3 p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition" required>
+                <input type="text" id="lastName" placeholder="Last Name" class="w-full mb-3 p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition" required>
+                <input type="email" id="email" placeholder="Email" class="w-full mb-3 p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition" required>
+                <input type="text" id="phone" placeholder="Phone" class="w-full mb-3 p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition" required>
+                <textarea id="address" placeholder="Address" class="w-full mb-3 p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition" rows="2"></textarea>
+                <input type="date" id="dateOfBirth" placeholder="Date of Birth" class="w-full mb-3 p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition">
+                <input type="text" id="panNumber" placeholder="PAN Number" class="w-full mb-3 p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition">
+                <input type="text" id="aadharNumber" placeholder="Aadhar Number" class="w-full mb-3 p-3 border-2 border-gray-200 rounded-lg focus:border-green-500 focus:outline-none transition">
+                <div class="flex justify-end space-x-2 mt-6">
+                    <button type="button" onclick="closeAddModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition transform hover:scale-105">Cancel</button>
+                    <button type="submit" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-2 rounded-lg transition transform hover:scale-105 shadow-lg">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/auth.js"></script>
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+
+        async function loadCustomers() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/customers`, {
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    const customers = await response.json();
+                    const tbody = document.getElementById('customerTable');
+                    const user = getUser();
+                    const isAdmin = user.role === 'ADMIN';
+                    tbody.innerHTML = customers.map(cust => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">${cust.customerId}</td>
+                            <td class="py-3 px-4">${cust.firstName} ${cust.lastName}</td>
+                            <td class="py-3 px-4">${cust.email}</td>
+                            <td class="py-3 px-4">${cust.phone}</td>
+                            <td class="py-3 px-4"><span class="bg-${cust.status === 'ACTIVE' ? 'green' : 'red'}-100 text-${cust.status === 'ACTIVE' ? 'green' : 'red'}-800 px-2 py-1 rounded text-sm">${cust.status}</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="viewAccounts(${cust.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm mr-1">Accounts</button>
+                                ${isAdmin ? `<button onclick="deleteCustomer(${cust.id}, '${cust.firstName} ${cust.lastName}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Delete</button>` : ''}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading customers:', error);
+            }
+        }
+
+        document.getElementById('addCustomerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const customer = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                dateOfBirth: document.getElementById('dateOfBirth').value || null,
+                panNumber: document.getElementById('panNumber').value || null,
+                aadharNumber: document.getElementById('aadharNumber').value || null
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/customers`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(customer)
+                });
+
+                if (response.ok) {
+                    alert('Customer added successfully');
+                    closeAddModal();
+                    loadCustomers();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error adding customer');
+                }
+            } catch (error) {
+                alert('Error adding customer');
+            }
+        });
+
+        function showAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            document.getElementById('addCustomerForm').reset();
+        }
+
+        function viewAccounts(customerId) {
+            window.location.href = `accounts.html?customerId=${customerId}`;
+        }
+
+        async function deleteCustomer(id, name) {
+            if (!confirm(`Are you sure you want to delete customer: ${name}?\n\nWarning: This will also delete all associated accounts and transactions!`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+
+                if (response.ok) {
+                    alert('Customer deleted successfully');
+                    loadCustomers();
+                } else {
+                    const error = await response.json();
+                    alert(error.message || 'Error deleting customer');
+                }
+            } catch (error) {
+                alert('Error deleting customer');
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        checkAuth();
+        loadCustomers();
+    </script>
+</body>
+</html>
